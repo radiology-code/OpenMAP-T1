@@ -9,7 +9,7 @@ python3.9 or later is recommended.
 
 1. Clone this repository, and go into the repository:
 ```
-git clone -b v2.0.0 https://github.com/OishiLab/OpenMAP-T1.git
+git clone -b v2.0.0  https://github.com/radiology-code/OpenMAP-T1.git
 cd OpenMAP-T1
 ```
 2. Please install PyTorch compatible with your environment.<br>
@@ -49,7 +49,7 @@ You can get the pretrained model from the this link.
 ## Folder
 All images you input must be in NifTi format and have a .nii extension.
 ```
-INPUR_FOLDER/
+INPUT_FOLDER/
   ├ A.nii
   ├ B.nii
   ├ *.nii
@@ -75,7 +75,36 @@ MODEL_FOLDER/
       ├ coronal.pth
       └ axial.pth
 ```
-
+## Containerization
+1. Requirements: install docker if docker image to be built, install docker and install apptainer (https://apptainer.org/docs/admin/main/installation.html) to build apptainer container, install make to run Makefile
+2. Copy models files into models/OpenMAP-T1-V2.0.0 folder with the same tree structure as shown in the MODEL_FOLDER above
+3. To build docker image, from repository root run:
+   ```
+   make build-docker
+   ```
+   Thus openmap-t1 image is built.
+5. Docker image usage:
+   ```
+   docker run --rm -v $INPUT_FOLDER:/input -v $OUTPUT_FOLDER:/output openmap-t1
+   ```
+   where variables INPUT_FOLDER and OUTPUT_FOLDER are as defined above
+7. To build apptainer image, from repository root run:
+   ```
+   make build-apptainer
+   ```
+   Thus openmap-t1.sif file is created.
+8. Apptainer image usage:
+   ```
+   apptainer run --nv --writable-tmpfs -B $INPUT_FOLDER:/input -B $OUTPUT_FOLDER:/output openmap-t1.sif
+   ```
+   where variables INPUT_FOLDER and OUTPUT_FOLDER are as defined above<br>
+   Note:<br>
+   Use --nv to utilize host's gpu<br>
+   The container file system is readonly and the program tries to create a temporary folder named N4 which causes mkdir failure, use --writable-tmpfs to enable writing, there is a size limit of 64M by default https://apptainer.org/docs/user/latest/persistent_overlays.html, change setting when necessary.<br>
+   Alternatively make a binding point for the temporary folder:
+   ```
+   apptainer run --nv -B $OPENMAP_INPUT_DIR:/input -B $OPENMAP_OUTPUT_DIR:/output -B /tmp/N4:/openmap/N4 openmap-t1.sif
+   ```
 ## FAQ
 * **How much GPU memory do I need to run OpenMAP-T1?** <br>
 We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference in implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. Typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.

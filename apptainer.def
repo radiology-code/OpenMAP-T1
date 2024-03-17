@@ -1,0 +1,4 @@
+Bootstrap: docker-daemon
+From: {{ IMAGE_NAME }}:latest
+%runscript
+	/openmap/entrypoint
