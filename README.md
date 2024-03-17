@@ -101,7 +101,7 @@ MODEL_FOLDER/
    Note:<br>
    Use --nv to utilize host's gpu<br>
    The container file system is readonly and the program tries to create a temporary folder named N4 which causes mkdir failure, use --writable-tmpfs to enable writing, there is a size limit of 64M by default https://apptainer.org/docs/user/latest/persistent_overlays.html, change setting when necessary.<br>
-   Alternatively make a binding point for the temporary folder:
+   Alternatively make a binding point for the temporary folder, in this case, the N4 folder can't be shared between concurrent instances:
    ```
    apptainer run --nv -B $OPENMAP_INPUT_DIR:/input -B $OPENMAP_OUTPUT_DIR:/output -B /tmp/N4:/openmap/N4 openmap-t1.sif
    ```
