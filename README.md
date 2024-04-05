@@ -83,11 +83,18 @@ MODEL_FOLDER/
    make build-docker
    ```
    Thus openmap-t1 image is built.
-5. Docker image usage:
+5. Docker image usage:<br>
+   Without utilizing host's gpus:
    ```
    docker run --rm -v $INPUT_FOLDER:/input -v $OUTPUT_FOLDER:/output openmap-t1
    ```
-   where variables INPUT_FOLDER and OUTPUT_FOLDER are as defined above
+   where variables INPUT_FOLDER and OUTPUT_FOLDER are as defined above.   
+   Using host's gpus:<br>
+   To enable cuda support inside container, follow the guide: https://medium.com/@albertqueralto/enabling-cuda-capabilities-in-docker-containers-51a3566ad014<br>
+   Then issue docker run command with "--gpus all" argument:
+   ```
+   docker run --rm --gpus all -v $INPUT_FOLDER:/input -v $OUTPUT_FOLDER:/output openmap-t1
+   ```   
 7. To build apptainer image, from repository root run:
    ```
    make build-apptainer
@@ -99,7 +106,7 @@ MODEL_FOLDER/
    ```
    where variables INPUT_FOLDER and OUTPUT_FOLDER are as defined above<br>
    Note:<br>
-   Use --nv to utilize host's gpu<br>
+   Use --nv to utilize host's gpus<br>
    The container file system is readonly and the program tries to create a temporary folder named N4 which causes mkdir failure, use --writable-tmpfs to enable writing, there is a size limit of 64M by default https://apptainer.org/docs/user/latest/persistent_overlays.html, change setting when necessary.<br>
    Alternatively make a binding point for the temporary folder, in this case, the N4 folder can't be shared between concurrent instances:
    ```
